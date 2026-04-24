@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   title: "Katalog",
   description: "The Everything Everyday App",
   icons: {
-    icon: "/image/logo.jpg",
+    icon: "/image/logo.png",
   },
 };
 
