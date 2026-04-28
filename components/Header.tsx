@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import data from '../utils/data.json';
@@ -11,12 +11,21 @@ export const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<typeof data>([]);
   const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+
+  const searchResults = useMemo(() => {
+    if (searchQuery.trim().length <= 1) {
+      return [];
+    }
+
+    return data.filter(item =>
+      item.itemname.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery]);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
@@ -33,19 +42,6 @@ export const Header: React.FC = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  useEffect(() => {
-    if (searchQuery.trim().length > 1) {
-      const filtered = data.filter(item =>
-        item.itemname.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setSearchResults(filtered);
-      setShowSearchSuggestions(true);
-    } else {
-      setSearchResults([]);
-      setShowSearchSuggestions(false);
-    }
-  }, [searchQuery]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -113,13 +109,17 @@ export const Header: React.FC = () => {
                 ref={searchInputRef}
                 type="text"
                 placeholder="Search..."
-                className={`${colors.overlay.white10} border ${colors.white.border}/20 ${design.borderRadius.full} py-2 focus:outline-none focus:bg-white focus:${colors.dark.text} transition-all placeholder:${colors.accent.lightText}/50 w-full ${
+                className={`${colors.overlay.white10} border ${colors.white.border}/20 ${design.borderRadius.full} py-2 text-white focus:text-gray-900 focus:outline-none focus:bg-white placeholder:text-blue-100/70 focus:placeholder:text-gray-400 transition-all w-full peer ${
                   isSearchExpanded || isDesktop
                   ? 'pl-10 pr-10 md:pr-4 opacity-100 pointer-events-auto'
                   : 'pl-0 pr-0 opacity-0 pointer-events-none'
                 }`}
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  const nextQuery = e.target.value;
+                  setSearchQuery(nextQuery);
+                  setShowSearchSuggestions(nextQuery.trim().length > 1);
+                }}
                 onBlur={() => {
                   if (!searchQuery && !isDesktop) {
                     setTimeout(() => {
@@ -132,7 +132,7 @@ export const Header: React.FC = () => {
               {/* Search Toggle/Icon */}
               <button
                 type="button"
-                className={`absolute left-0 top-0 w-10 h-10 flex items-center justify-center ${colors.accent.lightText}/50 hover:${colors.white.text} transition-colors ${isSearchExpanded ? 'pointer-events-auto' : 'md:pointer-events-none'}`}
+                className={`absolute left-0 top-0 w-10 h-10 flex items-center justify-center text-blue-100/70 hover:text-white peer-focus:text-gray-500 transition-colors ${isSearchExpanded ? 'pointer-events-auto' : 'md:pointer-events-none'}`}
                 onClick={() => setIsSearchExpanded(true)}
               >
                 <svg className={`${design.size.iconSm} md:${design.size.iconMd}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">

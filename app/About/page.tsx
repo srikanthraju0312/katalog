@@ -49,7 +49,7 @@ export default function AboutPage() {
 
         <div className="pt-12 text-center border-t border-gray-100">
           <p className="text-gray-400 font-medium italic">
-            "Everything Everyday, Organized."
+            &quot;Everything Everyday, Organized.&quot;
           </p>
         </div>
       </div>
